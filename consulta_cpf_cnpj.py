@@ -3,12 +3,30 @@
 
 import requests
 import re
-import sys
+import time
 import platform
 from cpf_generator import validar_cpf, gerar_combinacoes_cpf
 from cnpj_validator import validar_cnpj
 
 BRASIL_API_BASE_URL = "https://brasilapi.com.br/api"
+
+RATE_LIMIT = 3  # máximo de requisições por minuto para ReceitaWS (CNPJ)
+_last_call = 0
+_counter = 0
+
+def _throttle():
+    global _last_call, _counter
+    now = time.time()
+    # reset a cada 60s
+    if now - _last_call > 60:
+        _last_call, _counter = now, 0
+    if _counter >= RATE_LIMIT:
+        sleep_for = 60 - (now - _last_call)
+        print(f"Ratelimit alcançado, aguardando {sleep_for:.0f}s...")
+        time.sleep(sleep_for)
+        _last_call, _counter = time.time(), 0
+    _counter += 1
+
 
 def limpar_terminal():
     """Limpa o terminal dependendo do sistema operacional."""
@@ -25,6 +43,22 @@ def formatar_cpf(cpf):
     if len(cpf_limpo) == 11:
         return f"{cpf_limpo[:3]}.{cpf_limpo[3:6]}.{cpf_limpo[6:9]}-{cpf_limpo[9:]}"
     return cpf # Retorna original se não tiver 11 dígitos
+
+def consultar_cpf(cpf: str) -> dict | None:
+    """
+    Consulta CPF em API pública “não-oficial”.
+    (conforme seu trecho PHP usando https://api.centralda20.com/consultar/ )
+    """
+    url = f"https://api.centralda20.com/consultar/{cpf}"
+    try:
+        resp = requests.get(url, timeout=10)
+        data = resp.json()
+        if data.get("status") != "error":
+            return data
+        print(f"CPF {cpf} não encontrado ou sem dados.")
+    except requests.RequestException as e:
+        print(f"Erro ao consultar CPF {cpf}: {e}")
+    return None
 
 def formatar_cnpj(cnpj):
     """Formata um CNPJ no padrão XX.XXX.XXX/XXXX-XX."""
