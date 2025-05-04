@@ -8,24 +8,23 @@ def validar_cpf(cpf):
     if len(cpf) != 11 or len(set(cpf)) == 1:
         return False
 
-    # Calcula o primeiro dígito verificador
-    soma = 0
-    for i in range(9):
-        soma += int(cpf[i]) * (10 - i)
+    # Primeiro dígito
+    soma = sum(int(cpf[i]) * (10 - i) for i in range(9))
     resto = (soma * 10) % 11
     digito1 = resto if resto < 10 else 0
-
     if digito1 != int(cpf[9]):
         return False
 
-    # Calcula o segundo dígito verificador
-    soma = 0
-    for i in range(10):
-        soma += int(cpf[i]) * (11 - i)
+    # Segundo dígito
+    soma = sum(int(cpf[i]) * (11 - i) for i in range(10))
     resto = (soma * 10) % 11
     digito2 = resto if resto < 10 else 0
 
-    return digito2 == int(cpf[11])
+    # Corrigido para usar índice 10
+    if digito2 != int(cpf[10]):
+        return False
+
+    return True
 
 def gerar_combinacoes_cpf(cpf_incompleto):
     """Gera combinações válidas para um CPF incompleto com asteriscos."""
