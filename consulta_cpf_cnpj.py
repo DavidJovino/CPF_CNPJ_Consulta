@@ -44,12 +44,12 @@ def formatar_cpf(cpf):
         return f"{cpf_limpo[:3]}.{cpf_limpo[3:6]}.{cpf_limpo[6:9]}-{cpf_limpo[9:]}"
     return cpf # Retorna original se não tiver 11 dígitos
 
-def consultar_cpf(cpf: str) -> dict | None:
+def consultar_cpf_api(cpf: str) -> dict | None:
     """
     Consulta CPF em API pública “não-oficial”.
     (conforme seu trecho PHP usando https://api.centralda20.com/consultar/ )
     """
-    url = f"https://api.centralda20.com/consultar/{cpf}"
+    url = f"{BRASIL_API_BASE_URL}/cpf/vi/{cpf}"
     try:
         resp = requests.get(url, timeout=10)
         data = resp.json()
@@ -90,9 +90,42 @@ def consultar_cnpj_api(cnpj):
         # Use single quotes for keys/defaults inside the f-string expression
         print(f"\nErro inesperado ao processar CNPJ {formatar_cnpj(cnpj)}: {e}")
         return {"erro": f"Erro inesperado: {e}"}
+    
+def exibir_dados_cpf(dados):
+    """Exibe os dados do CPF de forma organizada."""
+    # Verifica se veio algum erro ou status de falha
+    if not dados or dados.get('status') == 'error' or 'CPF' not in dados:
+        print(f"Erro ao obter dados: {dados.get('msg', 'Nenhum dado retornado.')}")
+        return
 
-def exibir_dados_cnpj(dados):
+    print("\n--- Dados do CPF ---")
+    # Assumindo que exista uma função formatar_cpf() semelhante ao formatar_cnpj()
+    print(f"CPF: {formatar_cpf(dados.get('CPF', 'N/A'))}")
+    print(f"Nome: {dados.get('NOME', 'N/A')}")
+    print(f"Sexo: {dados.get('SEXO', 'N/A')}")
+    print(f"Data de Nascimento: {dados.get('NASC', 'N/A')}")
+    print(f"Nome da Mãe: {dados.get('NOME_MAE', 'N/A')}")
+    print(f"RG: {dados.get('RG', 'N/A')}")
+    print(f"Órgão Emissor: {dados.get('ORGAO_EMISSOR', 'N/A')} - {dados.get('UF_EMISSAO', 'N/A')}")
+    print(f"CBO: {dados.get('CBO', 'N/A')}")
+    # Formata renda, se existir
+    renda = dados.get('RENDA')
+    if renda and renda != "Não encontrado":
+        # supondo que 'RENDA' já venha como string 'R$xxx,xx'
+        print(f"Renda Informada: {renda}")
+    else:
+        print("Renda Informada: N/A")
+    print(f"Título de Eleitor: {dados.get('TITULO_ELEITOR', 'N/A')}")
+    print(f"CD Mosaic Antigo: {dados.get('CD_MOSAIC', 'N/A')}")
+    print(f"CD Mosaic Novo: {dados.get('CD_MOSAIC_NOVO', 'N/A')}")
+    print("---------------------")
+
+def exibir_dados_cnpj(dados, file=None):
     """Exibe os dados do CNPJ de forma organizada."""
+
+    # aponta para stdout se não vier file
+    dest = file or sys.stdout
+
     if not dados or "erro" in dados:
         # Use single quotes for keys/defaults inside the f-string expression
         print(f"Erro ao obter dados: {dados.get('erro', 'Nenhum dado retornado.')}")
@@ -159,9 +192,15 @@ def main():
                     print(f"Encontradas {len(combinacoes)} combinações de CPF válidas:")
                     # Limitar a exibição e consulta se forem muitas combinações?
                     # Por enquanto, vamos listar todas.
-                    for cpf_valido in combinacoes:
-                        print(f"  - {cpf_valido} (Válido)")
-                    print("\nAVISO: Não é possível consultar dados detalhados de CPF.")
+                    with open("resultados_cpfs.txt", "a", encoding="utf-8") as out:
+                        for cpf_valido in combinacoes:
+                            print(f"  - {cpf_valido} (Válido)")
+                            out.write(f"  - {cpf_valido} (Válido)\n")
+                            dados = consultar_cpf_api(cpf_valido)
+                            # imprime na tela
+                            exibir_dados_cpf(dados)
+                            # grava no arquivo
+                            exibir_dados_cpf(dados, file=out)
                 else:
                     print("Nenhuma combinação válida encontrada para o padrão informado.")
             except ValueError as e:
@@ -175,7 +214,8 @@ def main():
             print(f"\nVerificando CPF: {cpf_formatado}")
             if validar_cpf(entrada_limpa):
                 print(f"CPF {cpf_formatado} é VÁLIDO.")
-                print("AVISO: Não é possível consultar dados detalhados de CPF.")
+                dados = consultar_cpf_api(entrada_limpa)
+                exibir_dados_cpf(dados)
             else:
                 print(f"CPF {cpf_formatado} é INVÁLIDO.")
 
