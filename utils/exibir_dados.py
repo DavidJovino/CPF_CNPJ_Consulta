@@ -1,4 +1,4 @@
-from main import formatar_cpf, formatar_cnpj
+from formatadores import formatar_cpf, formatar_cnpj
 
 def exibir_dados_cpf(dados):
     """Exibe os dados do CPF de forma organizada."""
