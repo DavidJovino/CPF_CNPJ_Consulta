@@ -1,4 +1,6 @@
 import requests
+from cnpj.cnpj_validator import validar_cnpj
+from utils.formatadores import formatar_cnpj
 
 BRASIL_API_BASE_URL = "https://brasilapi.com.br/api"
 
