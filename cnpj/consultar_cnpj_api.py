@@ -1,3 +1,4 @@
+import re
 import requests
 from cnpj.cnpj_validator import validar_cnpj
 from utils.formatadores import formatar_cnpj
