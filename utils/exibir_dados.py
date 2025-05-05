@@ -1,3 +1,4 @@
+import sys
 from utils.formatadores import formatar_cpf, formatar_cnpj
 
 def exibir_dados_cpf(dados):
