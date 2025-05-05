@@ -28,7 +28,7 @@ def validar_cnpj(cnpj):
 
     return digito2 == int(cnpj[13])
 
-# Exemplo de uso (pode ser removido ou comentado)
+# Exemplo de uso 
 # cnpj_teste = "11.444.777/0001-61" # Exemplo válido
 # print(f"CNPJ {cnpj_teste} é válido? {validar_cnpj(cnpj_teste)}")
 # cnpj_teste_inv = "11.444.777/0001-60" # Exemplo inválido

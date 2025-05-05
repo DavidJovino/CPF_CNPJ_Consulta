@@ -3,13 +3,16 @@ from utils.formatadores import formatar_cpf, formatar_cnpj
 
 def exibir_dados_cpf(dados):
     """Exibe os dados do CPF de forma organizada."""
+    
+    # aponta para stdout se não vier file
+    dest = file or sys.stdout
+
     # Verifica se veio algum erro ou status de falha
     if not dados or dados.get('status') == 'error' or 'CPF' not in dados:
         print(f"Erro ao obter dados: {dados.get('msg', 'Nenhum dado retornado.')}")
         return
 
     print("\n--- Dados do CPF ---")
-    # Assumindo que exista uma função formatar_cpf() semelhante ao formatar_cnpj()
     print(f"CPF: {formatar_cpf(dados.get('CPF', 'N/A'))}")
     print(f"Nome: {dados.get('NOME', 'N/A')}")
     print(f"Sexo: {dados.get('SEXO', 'N/A')}")
@@ -32,9 +35,6 @@ def exibir_dados_cpf(dados):
 
 def exibir_dados_cnpj(dados, file=None):
     """Exibe os dados do CNPJ de forma organizada."""
-
-    # aponta para stdout se não vier file
-    dest = file or sys.stdout
 
     if not dados or "erro" in dados:
         # Use single quotes for keys/defaults inside the f-string expression

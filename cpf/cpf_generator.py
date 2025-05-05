@@ -56,7 +56,7 @@ def gerar_combinacoes_cpf(cpf_incompleto):
 
     return cpfs_validos
 
-# Exemplo de uso (pode ser removido ou comentado na versão final)
+# Exemplo de uso 
 # cpf_teste = '***.123.456-**'
 # try:
 #     combinacoes = gerar_combinacoes_cpf(cpf_teste)
