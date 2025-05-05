@@ -52,13 +52,24 @@ def consultar_cpf_api(cpf: str) -> dict | None:
     url = f"{BRASIL_API_BASE_URL}/cpf/vi/{cpf}"
     try:
         resp = requests.get(url, timeout=10)
-        data = resp.json()
-        if data.get("status") != "error":
-            return data
+        resp.raise_for_status()
         print(f"CPF {cpf} não encontrado ou sem dados.")
     except requests.RequestException as e:
-        print(f"Erro ao consultar CPF {cpf}: {e}")
-    return None
+        return {"status": "error", "msg": f"Erro HTTP ao consultar CPF {cpf}: {e}"}
+    
+        # tenta decodificar JSON
+    try:
+        data = resp.json()
+    except ValueError:
+        return {"status": "error", "msg": "Resposta da API não é um JSON válido."}
+
+    # se a própria API sinaliza erro
+    if data.get("status") == "error":
+        return {"status": "error", "msg": data.get("msg", "CPF não encontrado.")}
+
+    # sucesso
+    data["status"] = "ok"
+    return data
 
 def formatar_cnpj(cnpj):
     """Formata um CNPJ no padrão XX.XXX.XXX/XXXX-XX."""
