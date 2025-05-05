@@ -8,6 +8,7 @@ from cpf.cpf_generator import validar_cpf, gerar_combinacoes_cpf
 from cpf.consultar_cpf_api import consultar_cpf_api
 from cnpj.cnpj_validator import validar_cnpj
 from utils.exibir_dados import exibir_dados_cpf, exibir_dados_cnpj
+from utils.formatadores import formatar_cpf, formatar_cnpj
 
 
 RATE_LIMIT = 3  # máximo de requisições por minuto para ReceitaWS (CNPJ)
