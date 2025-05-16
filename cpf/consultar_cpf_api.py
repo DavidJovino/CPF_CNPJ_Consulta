@@ -5,7 +5,7 @@ BRASIL_API_BASE_URL = "https://brasilapi.com.br/api"
 def consultar_cpf_api(cpf: str) -> dict | None:
     """
     Consulta CPF em API pública “não-oficial”.
-    (conforme seu trecho PHP usando https://api.centralda20.com/consultar/ )
+    (usando https://api.centralda20.com/consultar/ )
     """
     url = f"{BRASIL_API_BASE_URL}/cpf/vi/{cpf}"
     try:
